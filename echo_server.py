@@ -11,9 +11,9 @@ def echo_server():
     server_socket.bind(('127.0.0.1', 50000))
     server_socket.listen(1)
     conn, addr = server_socket.accept()
-    text = conn.recv(32)
+    text = conn.recv(1024)
     print text
-    conn.sendall("Yes, I hear you.")
+    conn.sendall(text)
     conn.close()
 
 
