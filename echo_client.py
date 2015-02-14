@@ -5,7 +5,7 @@ import sys
 
 test_string = (sys.argv[-1])
 
-def echo_client(text="test test test"):
+def echo_client(text):
     """Initiates a socket from the client side"""
 
     uncoded_text = text
