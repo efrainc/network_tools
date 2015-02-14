@@ -3,7 +3,7 @@
 import pytest
 import sys
 from echo_client import echo_client
-from echo_server import echo_server
+
 
 def test_connection():
     """Test that a connect is establised by reading a returned value"""
@@ -16,6 +16,6 @@ def test_input():
 
 def test_longer_string():
     """Test that a string over 32 bytes gets read correctly"""
-    print sys.getsizeof('aklsjflksjflkasjflsjfl')
+    print sys.getsizeof('aklsjflksjflkasjflsjflkjlkajflksjdflkasjflkjslkdfjalfalsdfjkl')
     assert 'aklsjflksjflkasjflsjfl' == echo_client('aklsjflksjflkasjflsjfl')
 

@@ -18,7 +18,16 @@ def echo_client(text="test test test"):
     client_socket.connect(('127.0.0.1', 50000))
     client_socket.sendall(coded_text)
     client_socket.shutdown(socket.SHUT_WR)
-    text_received = client_socket.recv(32)
+    text_received = ""
+    done = False
+    while not done:
+        response = client_socket.recv(32)
+        if len(response) < 32:
+            done = True
+        text_received = "{}{}".format(text_received, response)
     client_socket.close()
     return text_received
+
+if __name__ == '__main__':
+    echo_client(test_string)
 
