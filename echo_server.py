@@ -2,7 +2,9 @@
 
 import socket
 import email.utils
+import os
 import sys
+import mimetypes
 
 
 def echo_server():
@@ -30,14 +32,14 @@ def echo_server():
     except KeyboardInterrupt:
        server_socket.close()
 
-def response_ok(uri):
+def response_ok(content, body_text):
     first_line = 'HTTP/1.1 200 OK'
     timestamp = 'Date: ' + email.utils.formatdate(usegmt=True)
-    header = 'Content-Type: text/plain'
-    body = uri
+    header = 'Content-Type: {}'.format(content)
+    body = body_text
     size = str(sys.getsizeof(body))
     end = '\r\n'
-    response  =  [first_line, timestamp, header, size, body, end]
+    response = [first_line, timestamp, header, size, body, end]
     return end.join(response)
 
 def response_error(error_code, error_message):
@@ -65,8 +67,33 @@ def error_determination(http_methods):
         error = response_error('505', 'HTTP Version Not Supported')
         return error
     else:
-        return response_ok(http_methods[1])
+        return resolve_uri(http_methods[1])
 
+def resolve_uri(uri):
+    if os.path.isdir(os.path.abspath(uri)):
+        list_of_files = dir_list(uri)
+        response = response_ok('text/html', list_of_files)
+        return response
+    elif os.path.isfile(uri):
+        file_info = file_text(uri)
+        content = mimetypes.guess_type(uri)[0]
+        response = response_ok(content, file_info)
+        return response
+    else:
+        return response_error('404', 'Content Not Found')
+
+def file_text(uri):
+    file_information = open(uri, "r")
+    body = file_information.read()
+    file_information.close()
+    return body
+
+def dir_list(uri):
+    dir_list = ""
+    for i in os.listdir(uri):
+        dir_list += "<li>"+i+"</li>\n"
+    body = "<ul>\n{}</ul>\n".format(dir_list)
+    return body
 
 if __name__ == '__main__':
     echo_server()
