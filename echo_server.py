@@ -52,9 +52,9 @@ def response_error(error_code, error_message):
     header = 'Content-Type: text/plain'
     body = '{} {}'.format(error_code, error_message)
     size = str(sys.getsizeof(body))
-    end = '\r\n'
-    error_response = [first_line, timestamp, header, size, body, end]
-    return end.join(error_response)
+    space = '\r\n'
+    error_response = [first_line, header, space, timestamp, size, body, space]
+    return space.join(error_response)
 
 
 def parase_request(client_request):
