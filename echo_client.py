@@ -5,6 +5,7 @@ import sys
 
 test_string = (sys.argv[-1])
 
+
 def echo_client(text):
     """Initiates a socket from the client side"""
 
@@ -24,10 +25,11 @@ def echo_client(text):
         response = client_socket.recv(32)
         if len(response) < 32:
             done = True
+            client_socket.close()
         text_received = "{}{}".format(text_received, response)
-    client_socket.close()
+    print text_received
     return text_received
 
 if __name__ == '__main__':
-    echo_client(test_string)
+    print echo_client(test_string)
 

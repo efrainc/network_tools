@@ -5,6 +5,8 @@ import email.utils
 import os
 import sys
 import mimetypes
+from multiprocessing import Process
+from echo_client import echo_client
 
 
 def echo_server():
@@ -20,17 +22,18 @@ def echo_server():
         while True:
             done = False
             text_received = ''
+            conn, addr = server_socket.accept()
             while not done:
-                conn, addr = server_socket.accept()
                 response = conn.recv(32)
                 if len(response) < 32:
                     done = True
                 text_received = "{}{}".format(text_received, response)
-            if text_received:
-                response_user = parase_request(text_received)
-            conn.sendall(response_user)
+            # if text_received:
+            #     response_user = parase_request(text_received)
+            conn.sendall(text_received)
     except KeyboardInterrupt:
-       server_socket.close()
+        server_socket.close()
+
 
 def response_ok(content, body_text):
     first_line = 'HTTP/1.1 200 OK'
@@ -42,6 +45,7 @@ def response_ok(content, body_text):
     response = [first_line, timestamp, header, size, body, end]
     return end.join(response)
 
+
 def response_error(error_code, error_message):
     first_line = 'HTTP/1.1 {} {}'.format(error_code, error_message)
     timestamp = 'Date: ' + email.utils.formatdate(usegmt=True)
@@ -52,11 +56,13 @@ def response_error(error_code, error_message):
     error_response = [first_line, timestamp, header, size, body, end]
     return end.join(error_response)
 
+
 def parase_request(client_request):
     full_text = client_request.splitlines()
     first_line = full_text[0].split(' ')
     response = error_determination(first_line)
     return response
+
 
 def error_determination(http_methods):
 
@@ -68,6 +74,7 @@ def error_determination(http_methods):
         return error
     else:
         return resolve_uri(http_methods[1])
+
 
 def resolve_uri(uri):
     if os.path.isdir(os.path.abspath(uri)):
@@ -82,11 +89,13 @@ def resolve_uri(uri):
     else:
         return response_error('404', 'Content Not Found')
 
+
 def file_text(uri):
     file_information = open(uri, "r")
     body = file_information.read()
     file_information.close()
     return body
+
 
 def dir_list(uri):
     dir_list = ""
@@ -96,4 +105,12 @@ def dir_list(uri):
     return body
 
 if __name__ == '__main__':
-    echo_server()
+    p = Process(target=echo_server, args=())
+    p.start()
+
+    j = Process(target=echo_client, args=(sys.argv[-1],))
+    j.start()
+    j.join
+
+
+
